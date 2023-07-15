@@ -69,6 +69,7 @@ async function writeConfig(gitRepo) {
     )
     const config = {
       path: configFilePath,
+      versioningType: null,
       devBranch: null,
       stagingBranch: null,
       productionBranch: null,

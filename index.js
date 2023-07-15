@@ -11,7 +11,7 @@ main()
     const end = Date.now()
     const duration = round((end - start) / 1000, 2)
 
-    console.log(`✨  Done ${duration}s.`)
+    console.log(`\n✨  Done ${duration}s.`)
   })
 
 async function main() {
