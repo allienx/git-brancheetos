@@ -26,7 +26,9 @@ export default async function brancheetos() {
   const user = await getAuthenticatedUser({ octokit })
 
   if (!user) {
-    console.log('Could not load user details. Is your token expired?')
+    console.log(
+      "Could not load user details. Check your token's expiration date.",
+    )
 
     return
   }
