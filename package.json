@@ -1,0 +1,6 @@
+{
+  "name": "git-brancheetos",
+  "description": "Automate your release pull requests. Enjoy your brancheetos 🌶️🧀",
+  "private": true,
+  "packageManager": "yarn@3.6.1"
+}
