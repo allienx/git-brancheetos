@@ -1,4 +1,4 @@
 export const VersionType = {
-  YearMajorMinor: 'YYYY.aa.bb',
+  YearMajorMinor: 'vYYYY.aa.bb',
   Other: 'other',
 }

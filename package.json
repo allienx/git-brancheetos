@@ -1,11 +1,12 @@
 {
   "name": "git-brancheetos",
   "description": "Automate your release pull requests. Enjoy your brancheetos 🌶️🧀",
+  "version": "0.0.1",
   "private": true,
   "packageManager": "yarn@3.6.1",
   "type": "module",
-  "main": "index.js",
-  "bin": "index.js",
+  "main": "brancheetos.js",
+  "bin": "brancheetos.js",
   "devDependencies": {
     "prettier": "2.8.8"
   },
@@ -13,6 +14,7 @@
     "@inquirer/input": "1.2.5",
     "@inquirer/select": "1.2.5",
     "@octokit/rest": "20.0.1",
+    "commander": "11.0.0",
     "env-paths": "3.0.0",
     "git-remote-origin-url": "4.0.0",
     "lodash": "4.17.21"

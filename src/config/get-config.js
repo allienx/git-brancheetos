@@ -6,12 +6,12 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { VersionType } from './version-type.js'
 
-export default async function getConfig() {
+export default async function getConfig({ forceReset = false } = {}) {
   const gitRepo = await getGitRepo()
 
   let config = await readConfig(gitRepo)
 
-  if (!config) {
+  if (forceReset || !config) {
     config = await writeConfig({
       versioningType: null,
       devBranch: null,
@@ -108,7 +108,7 @@ async function promptForMissingConfig(config) {
       {
         name: `Year.Major.Minor (${VersionType.YearMajorMinor})`,
         value: VersionType.YearMajorMinor,
-        description: 'Example: 2023.15.0 or 2023.15.1',
+        description: 'Example: v2023.15.0 or v2023.15.1',
       },
       {
         name: 'Other',

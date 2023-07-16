@@ -48,10 +48,11 @@ export default class GithubProvider {
       ['Latest Version:', this.latestVersion || ''],
     ]
 
+    console.log()
     pairs.forEach(([label, value]) => {
       console.log(`${label.padStart('18')} ${value}`)
     })
-    console.log('\n')
+    console.log()
   }
 
   async getLatestVersion() {

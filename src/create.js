@@ -6,7 +6,7 @@ import getPullRequestName from './config/get-pull-request-name.js'
 import { PullRequestType } from './config/pull-request-type.js'
 import GitProvider from './providers/git-provider.js'
 
-export default async function brancheetos() {
+export default async function create() {
   const config = await getConfig()
   const gitProvider = GitProvider.create(config)
 
@@ -38,12 +38,14 @@ export default async function brancheetos() {
   const newVersionName = await input({
     message: 'Enter the new version',
     default: defaultNewVersion,
+    validate: (value) => !!value,
   })
 
   const defaultPrName = getPullRequestName({ prType, newVersionName })
   const prName = await input({
     message: 'Enter the pull request name',
     default: defaultPrName,
+    validate: (value) => !!value,
   })
 
   const defaultReleaseBranchName = `release-${newVersionName}`
@@ -53,6 +55,7 @@ export default async function brancheetos() {
       ? await input({
           message: 'Enter the release branch name',
           default: defaultReleaseBranchName,
+          validate: (value) => !!value,
         })
       : ''
 
