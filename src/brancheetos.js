@@ -84,11 +84,12 @@ export default async function brancheetos() {
       ? config.stagingBranch
       : config.productionBranch
 
-  await gitProvider.createPullRequest({
+  const pullRequest = await gitProvider.createPullRequest({
     prName,
     headBranchName,
     baseBranchName,
   })
 
   console.log(`Created ${prName} ✅`)
+  console.log(`  - ${pullRequest.url}`)
 }
