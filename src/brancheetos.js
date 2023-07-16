@@ -73,23 +73,27 @@ export default async function brancheetos() {
     console.log(`Created ${releaseBranchName} ✅`)
   }
 
-  console.log(`Creating pull request...`)
+  if (prType !== PullRequestType.ProductionHotfix) {
+    console.log(`Creating pull request...`)
 
-  const headBranchName =
-    prType === PullRequestType.DevToStaging
-      ? config.devBranch
-      : releaseBranchName
-  const baseBranchName =
-    prType === PullRequestType.DevToStaging
-      ? config.stagingBranch
-      : config.productionBranch
+    const headBranchName =
+      prType === PullRequestType.DevToStaging
+        ? config.devBranch
+        : releaseBranchName
+    const baseBranchName =
+      prType === PullRequestType.DevToStaging
+        ? config.stagingBranch
+        : config.productionBranch
 
-  const pullRequest = await gitProvider.createPullRequest({
-    prName,
-    headBranchName,
-    baseBranchName,
-  })
+    const pullRequest = await gitProvider.createPullRequest({
+      prName,
+      headBranchName,
+      baseBranchName,
+    })
 
-  console.log(`Created ${prName} ✅`)
-  console.log(`  - ${pullRequest.url}`)
+    console.log(`Created ${prName} ✅`)
+    console.log(`  - ${pullRequest.url}`)
+  } else {
+    console.log('Skipping pull request creation for hotfix.')
+  }
 }
