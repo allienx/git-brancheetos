@@ -90,7 +90,7 @@ export default class GithubProvider {
   async createPullRequest({ prName, headBranchName, baseBranchName }) {
     const { gitRepo } = this.config
 
-    const { data } = await this.octokit.pulls.create({
+    const { data: pullRequest } = await this.octokit.pulls.create({
       owner: gitRepo.owner,
       repo: gitRepo.repo,
       title: prName,
@@ -98,6 +98,8 @@ export default class GithubProvider {
       base: baseBranchName,
     })
 
-    console.log(data)
+    return {
+      url: pullRequest.html_url,
+    }
   }
 }
