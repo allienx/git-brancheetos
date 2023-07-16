@@ -1,7 +1,7 @@
 {
   "name": "git-brancheetos",
   "description": "Automate your release pull requests. Enjoy your brancheetos 🌶️🧀",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "packageManager": "yarn@3.6.1",
   "type": "module",
