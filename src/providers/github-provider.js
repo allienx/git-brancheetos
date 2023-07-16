@@ -5,11 +5,13 @@ export default class GithubProvider {
   config
   tokenNames
   octokit
+  latestVersion
 
   constructor(config) {
     this.config = config
     this.tokenNames = ['GIT_BRANCHEETOS_TOKEN', 'GH_TOKEN', 'GITHUB_TOKEN']
     this.octokit = null
+    this.latestVersion = null
   }
 
   async init() {
@@ -38,5 +40,64 @@ export default class GithubProvider {
         "Could not load user details. Check your token's expiration date.",
       )
     }
+
+    this.latestVersion = await this.getLatestVersion()
+    const { gitRepo } = this.config
+    const pairs = [
+      ['GitHub Repository:', `${gitRepo.owner}/${gitRepo.repo}`],
+      ['Latest Version:', this.latestVersion || ''],
+    ]
+
+    pairs.forEach(([label, value]) => {
+      console.log(`${label.padStart('18')} ${value}`)
+    })
+    console.log('\n')
+  }
+
+  async getLatestVersion() {
+    const { gitRepo } = this.config
+
+    try {
+      const { data: release } = await this.octokit.repos.getRelease({
+        owner: gitRepo.owner,
+        repo: gitRepo.repo,
+        release_id: 'latest',
+      })
+
+      return release.tag_name
+    } catch (err) {
+      return null
+    }
+  }
+
+  async createReleaseBranch({ headBranchName, releaseBranchName }) {
+    const { gitRepo } = this.config
+
+    const { data: ref } = await this.octokit.git.getRef({
+      owner: gitRepo.owner,
+      repo: gitRepo.repo,
+      ref: `heads/${headBranchName}`,
+    })
+
+    await this.octokit.git.createRef({
+      owner: gitRepo.owner,
+      repo: gitRepo.repo,
+      ref: `refs/heads/${releaseBranchName}`,
+      sha: ref.object.sha,
+    })
+  }
+
+  async createPullRequest({ prName, headBranchName, baseBranchName }) {
+    const { gitRepo } = this.config
+
+    const { data } = await this.octokit.pulls.create({
+      owner: gitRepo.owner,
+      repo: gitRepo.repo,
+      title: prName,
+      head: headBranchName,
+      base: baseBranchName,
+    })
+
+    console.log(data)
   }
 }
