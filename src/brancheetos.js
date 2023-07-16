@@ -60,7 +60,7 @@ export default async function brancheetos() {
     prType === PullRequestType.StagingToProduction ||
     prType === PullRequestType.ProductionHotfix
   ) {
-    console.log(`Creating branch ${releaseBranchName} from ${refName}...`)
+    console.log(`Creating release branch...`)
 
     await gitProvider.createReleaseBranch({
       headBranchName:
@@ -73,7 +73,7 @@ export default async function brancheetos() {
     console.log(`Created ${releaseBranchName} ✅`)
   }
 
-  console.log(`Creating PR ${prName}...`)
+  console.log(`Creating pull request...`)
 
   const headBranchName =
     prType === PullRequestType.DevToStaging
@@ -84,11 +84,12 @@ export default async function brancheetos() {
       ? config.stagingBranch
       : config.productionBranch
 
-  await gitProvider.createPullRequest({
+  const pullRequest = await gitProvider.createPullRequest({
     prName,
     headBranchName,
     baseBranchName,
   })
 
   console.log(`Created ${prName} ✅`)
+  console.log(`  - ${pullRequest.url}`)
 }
