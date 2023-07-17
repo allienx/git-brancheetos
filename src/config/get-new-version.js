@@ -7,12 +7,31 @@ export default function getNewVersion({ config, prType, latestVersion }) {
   }
 
   switch (config.versioningType) {
+    case VersionType.SemVer:
+      return getNewSemanticVersion({ latestVersion })
+
     case VersionType.YearMajorMinor:
       return getNewYearMajorMinorVersion({ prType, latestVersion })
 
     default:
       return null
   }
+}
+
+function getNewSemanticVersion({ latestVersion }) {
+  let [major, minor, patch] = latestVersion.replace('v', '').split('.')
+
+  if (!major || !minor || !patch) {
+    return null
+  }
+
+  major = Number(major)
+  minor = Number(minor)
+  patch = Number(patch)
+
+  const prefix = latestVersion.startsWith('v') ? 'v' : ''
+
+  return `${prefix}${major}.${minor + 1}.${patch}`
 }
 
 function getNewYearMajorMinorVersion({ prType, latestVersion }) {
