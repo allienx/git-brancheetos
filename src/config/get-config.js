@@ -106,6 +106,11 @@ async function promptForMissingConfig(config) {
     message: 'Select your versioning type',
     choices: [
       {
+        name: `Semantic Versioning (${VersionType.SemVer})`,
+        value: VersionType.SemVer,
+        description: 'Example: v1.2.0 or v1.2.1',
+      },
+      {
         name: `Year.Major.Minor (${VersionType.YearMajorMinor})`,
         value: VersionType.YearMajorMinor,
         description: 'Example: v2023.15.0 or v2023.15.1',

@@ -18,6 +18,7 @@ export default async function create() {
       {
         name: `${config.devBranch} => ${config.stagingBranch}`,
         value: PullRequestType.DevToStaging,
+        disabled: config.devBranch === config.stagingBranch,
       },
       {
         name: `${config.stagingBranch} => ${config.productionBranch}`,
