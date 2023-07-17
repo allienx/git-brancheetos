@@ -11,12 +11,14 @@ Useful if your release pipeline follows this type of flow:
 ## Usage
 
 ```shell
-yarn add git-brancheetos@allienx/git-brancheetos
+yarn add git-brancheetos
+yarn run brancheetos
+
+npm install git-brancheetos
+npx brancheetos
 ```
 
-```shell
-npm install allienx@git-brancheetos
-```
+By default, the `create` command runs.
 
 ```shell
 Usage: brancheetos [options] [command]

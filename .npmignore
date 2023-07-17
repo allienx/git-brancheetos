@@ -1,0 +1,17 @@
+.idea/
+.yarn/
+
+node_modules/
+
+.custom_repl_history
+.DS_Store
+.env*local
+.nvmrc
+.prettierignore
+.yarnrc.yml
+
+prettier.config.cjs
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

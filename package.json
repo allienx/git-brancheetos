@@ -1,12 +1,22 @@
 {
   "name": "git-brancheetos",
-  "description": "Automate your release pull requests. Enjoy your brancheetos 🌶️🧀",
   "version": "1.0.0",
-  "private": true,
+  "description": "Automate your release pull requests. Enjoy your brancheetos 🌶️🧀",
+  "keywords": [
+    "git",
+    "github",
+    "branches",
+    "pull requests",
+    "releases"
+  ],
+  "homepage": "https://github.com/allienx/git-brancheetos",
+  "license": "MIT",
   "packageManager": "yarn@3.6.1",
   "type": "module",
   "main": "brancheetos.js",
-  "bin": "brancheetos.js",
+  "bin": {
+    "brancheetos": "./brancheetos.js"
+  },
   "devDependencies": {
     "prettier": "2.8.8"
   },
