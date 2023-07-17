@@ -32,4 +32,5 @@ jobs:
         with:
           name: ${{ steps.split.outputs._1 }}
           tag_name: ${{ steps.split.outputs._1 }}
+          target_commitish: main
           generate_release_notes: true
