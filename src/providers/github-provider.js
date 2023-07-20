@@ -138,6 +138,8 @@ export default class GithubProvider {
 
     const { stdout } = await execAsync(`gh pr create ${opts}`)
 
-    console.log(stdout)
+    return {
+      url: stdout.trim(),
+    }
   }
 }

@@ -78,6 +78,8 @@ export default async function create() {
   }
 
   if (prType !== PullRequestType.ProductionHotfix) {
+    console.log(`Creating pull request...`)
+
     const headBranchName =
       prType === PullRequestType.DevToStaging
         ? config.devBranch
@@ -87,12 +89,14 @@ export default async function create() {
         ? config.stagingBranch
         : config.productionBranch
 
-    await gitProvider.createPullRequest({
+    const { url } = await gitProvider.createPullRequest({
       newVersionName,
       prName,
       headBranchName,
       baseBranchName,
     })
+
+    console.log(`Created ${prName}: ${url}`)
   } else {
     console.log('Skipping pull request creation for hotfix.')
   }
