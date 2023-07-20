@@ -27,11 +27,10 @@ function getNewSemanticVersion({ latestVersion }) {
 
   major = Number(major)
   minor = Number(minor)
-  patch = Number(patch)
 
   const prefix = latestVersion.startsWith('v') ? 'v' : ''
 
-  return `${prefix}${major}.${minor + 1}.${patch}`
+  return `${prefix}${major}.${minor + 1}.0`
 }
 
 function getNewYearMajorMinorVersion({ prType, latestVersion }) {

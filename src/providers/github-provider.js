@@ -1,44 +1,30 @@
-import { Octokit } from '@octokit/rest'
-import getTokenFromEnv from './get-token-from-env.js'
+import { exec } from 'node:child_process'
+import { promisify } from 'node:util'
+
+const execAsync = promisify(exec)
 
 export default class GithubProvider {
   config
-  tokenNames
-  octokit
   latestVersion
 
   constructor(config) {
     this.config = config
-    this.tokenNames = ['GIT_BRANCHEETOS_TOKEN', 'GH_TOKEN', 'GITHUB_TOKEN']
-    this.octokit = null
     this.latestVersion = null
   }
 
   async init() {
-    const token = getTokenFromEnv(this.tokenNames)
+    const hasGhCli = await this.hasGhCli()
 
-    if (!token) {
-      let message =
-        'No token detected. Please set one of the following environment variables in your shell:\n'
-
-      this.tokenNames.forEach((name) => {
-        message += `  - ${name}\n`
-      })
-
-      throw new Error(message)
+    if (!hasGhCli) {
+      throw new Error(
+        'Missing GitHub CLI. See installation instructions: https://cli.github.com',
+      )
     }
 
-    this.octokit = new Octokit({
-      auth: token,
-      userAgent: 'git-brancheetos',
-    })
+    const isAuthenticated = await this.isAuthenticated()
 
-    try {
-      await this.octokit.users.getAuthenticated()
-    } catch (err) {
-      throw new Error(
-        "Could not load user details. Check your token's expiration date.",
-      )
+    if (!isAuthenticated) {
+      throw new Error('GitHub CLI not authenticated. Run: gh auth login')
     }
 
     this.latestVersion = await this.getLatestVersion()
@@ -55,17 +41,45 @@ export default class GithubProvider {
     console.log()
   }
 
+  async execGhApi(cmd) {
+    try {
+      const { stdout } = await execAsync(`gh api ${cmd}`)
+
+      return JSON.parse(stdout)
+    } catch (err) {
+      return null
+    }
+  }
+
+  async hasGhCli() {
+    try {
+      const { stdout } = await execAsync('gh version')
+
+      return !!stdout.includes('gh version')
+    } catch (err) {
+      return false
+    }
+  }
+
+  async isAuthenticated() {
+    try {
+      const user = await this.execGhApi('/user')
+
+      return !!user?.id
+    } catch (err) {
+      return false
+    }
+  }
+
   async getLatestVersion() {
     const { gitRepo } = this.config
 
     try {
-      const { data: release } = await this.octokit.repos.getRelease({
-        owner: gitRepo.owner,
-        repo: gitRepo.repo,
-        release_id: 'latest',
-      })
+      const latestRelease = await this.execGhApi(
+        `/repos/${gitRepo.owner}/${gitRepo.repo}/releases/latest`,
+      )
 
-      return release.tag_name
+      return latestRelease.tag_name
     } catch (err) {
       return null
     }
@@ -74,33 +88,56 @@ export default class GithubProvider {
   async createReleaseBranch({ headBranchName, releaseBranchName }) {
     const { gitRepo } = this.config
 
-    const { data: ref } = await this.octokit.git.getRef({
-      owner: gitRepo.owner,
-      repo: gitRepo.repo,
-      ref: `heads/${headBranchName}`,
-    })
+    const releaseBranchRef = await this.execGhApi(
+      `/repos/${gitRepo.owner}/${gitRepo.repo}/git/ref/heads/${releaseBranchName}`,
+    )
 
-    await this.octokit.git.createRef({
-      owner: gitRepo.owner,
-      repo: gitRepo.repo,
-      ref: `refs/heads/${releaseBranchName}`,
-      sha: ref.object.sha,
-    })
+    // Don't try and create the release branch if it already exists.
+    if (releaseBranchRef) {
+      return
+    }
+
+    const ref = await this.execGhApi(
+      `/repos/${gitRepo.owner}/${gitRepo.repo}/git/ref/heads/${headBranchName}`,
+    )
+
+    await this.execGhApi(
+      [
+        `/repos/${gitRepo.owner}/${gitRepo.repo}/git/refs`,
+        '--method POST',
+        `-f ref='refs/heads/${releaseBranchName}'`,
+        `-f sha=${ref.object.sha}`,
+      ].join(' '),
+    )
   }
 
-  async createPullRequest({ prName, headBranchName, baseBranchName }) {
+  async createPullRequest({
+    newVersionName,
+    prName,
+    headBranchName,
+    baseBranchName,
+  }) {
     const { gitRepo } = this.config
 
-    const { data: pullRequest } = await this.octokit.pulls.create({
-      owner: gitRepo.owner,
-      repo: gitRepo.repo,
-      title: prName,
-      head: headBranchName,
-      base: baseBranchName,
+    const milestones = await this.execGhApi(
+      `/repos/${gitRepo.owner}/${gitRepo.repo}/milestones`,
+    )
+    const milestoneForVersion = milestones?.find((milestone) => {
+      return milestone.title === newVersionName
     })
 
-    return {
-      url: pullRequest.html_url,
-    }
+    const opts = [
+      `--title "${prName}"`,
+      `--head "${headBranchName}"`,
+      `--base "${baseBranchName}"`,
+      `--body ""`,
+      milestoneForVersion ? `--milestone "${newVersionName}"` : '',
+    ]
+      .filter((opt) => !!opt)
+      .join(' ')
+
+    const { stdout } = await execAsync(`gh pr create ${opts}`)
+
+    console.log(stdout)
   }
 }
