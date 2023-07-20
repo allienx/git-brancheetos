@@ -10,7 +10,27 @@ Useful if your release pipeline follows this type of flow:
 
 ## Usage
 
-```shell
+The [GitHub CLI](https://cli.github.com) must be used to work with GitHub repositories.
+
+```
+brew install gh
+gh auth login
+```
+
+Install the npm dependency:
+
+global
+
+```
+yarn global add git-brancheetos
+npm install -g git-brancheetos
+
+brancheetos
+```
+
+local to project
+
+```
 yarn add git-brancheetos
 yarn run brancheetos
 
@@ -20,7 +40,7 @@ npx brancheetos
 
 By default, the `create` command runs.
 
-```shell
+```
 Usage: brancheetos [options] [command]
 
 Automate your release pull requests. Enjoy your brancheetos 🌶️🧀
