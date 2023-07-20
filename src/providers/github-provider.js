@@ -1,5 +1,7 @@
-import { Octokit } from '@octokit/rest'
-import getTokenFromEnv from './get-token-from-env.js'
+import { exec } from 'node:child_process'
+import { promisify } from 'node:util'
+
+const execAsync = promisify(exec)
 
 export default class GithubProvider {
   config
@@ -15,30 +17,18 @@ export default class GithubProvider {
   }
 
   async init() {
-    const token = getTokenFromEnv(this.tokenNames)
+    const hasGhCli = await this.hasGhCli()
 
-    if (!token) {
-      let message =
-        'No token detected. Please set one of the following environment variables in your shell:\n'
-
-      this.tokenNames.forEach((name) => {
-        message += `  - ${name}\n`
-      })
-
-      throw new Error(message)
+    if (!hasGhCli) {
+      throw new Error(
+        'Missing GitHub CLI. See installation instructions: https://cli.github.com',
+      )
     }
 
-    this.octokit = new Octokit({
-      auth: token,
-      userAgent: 'git-brancheetos',
-    })
+    const isAuthenticated = await this.isAuthenticated()
 
-    try {
-      await this.octokit.users.getAuthenticated()
-    } catch (err) {
-      throw new Error(
-        "Could not load user details. Check your token's expiration date.",
-      )
+    if (!isAuthenticated) {
+      throw new Error('GitHub CLI not authenticated. Run: gh auth login')
     }
 
     this.latestVersion = await this.getLatestVersion()
@@ -55,17 +45,39 @@ export default class GithubProvider {
     console.log()
   }
 
+  async hasGhCli() {
+    try {
+      const { stdout } = await execAsync('gh version')
+
+      return !!stdout.includes('gh version')
+    } catch (err) {
+      return false
+    }
+  }
+
+  async isAuthenticated() {
+    try {
+      const { stdout } = await execAsync('gh api /user')
+      const user = JSON.parse(stdout)
+
+      return !!user?.id
+    } catch (err) {
+      console.error(err)
+
+      return false
+    }
+  }
+
   async getLatestVersion() {
     const { gitRepo } = this.config
 
     try {
-      const { data: release } = await this.octokit.repos.getRelease({
-        owner: gitRepo.owner,
-        repo: gitRepo.repo,
-        release_id: 'latest',
-      })
+      const { stdout } = await execAsync(
+        `gh api /repos/${gitRepo.owner}/${gitRepo.repo}/releases/latest`,
+      )
+      const latestRelease = JSON.parse(stdout)
 
-      return release.tag_name
+      return latestRelease.tag_name
     } catch (err) {
       return null
     }
@@ -74,33 +86,37 @@ export default class GithubProvider {
   async createReleaseBranch({ headBranchName, releaseBranchName }) {
     const { gitRepo } = this.config
 
-    const { data: ref } = await this.octokit.git.getRef({
-      owner: gitRepo.owner,
-      repo: gitRepo.repo,
-      ref: `heads/${headBranchName}`,
-    })
+    const { stdout } = await execAsync(
+      `gh api /repos/${gitRepo.owner}/${gitRepo.repo}/git/ref/heads/${headBranchName}`,
+    )
+    const ref = JSON.parse(stdout)
 
-    await this.octokit.git.createRef({
-      owner: gitRepo.owner,
-      repo: gitRepo.repo,
-      ref: `refs/heads/${releaseBranchName}`,
-      sha: ref.object.sha,
-    })
+    const opts = [
+      '--method POST',
+      `-f ref='refs/heads/${releaseBranchName}'`,
+      `-f sha=${ref.object.sha}`,
+    ].join(' ')
+
+    await execAsync(
+      `gh api /repos/${gitRepo.owner}/${gitRepo.repo}/git/refs ${opts}`,
+    )
   }
 
-  async createPullRequest({ prName, headBranchName, baseBranchName }) {
-    const { gitRepo } = this.config
+  async createPullRequest({
+    newVersionName,
+    prName,
+    headBranchName,
+    baseBranchName,
+  }) {
+    const opts = [
+      `--title ${prName}`,
+      `--head ${headBranchName}`,
+      `--base ${baseBranchName}`,
+      `--milestone ${newVersionName}`,
+    ].join(' ')
 
-    const { data: pullRequest } = await this.octokit.pulls.create({
-      owner: gitRepo.owner,
-      repo: gitRepo.repo,
-      title: prName,
-      head: headBranchName,
-      base: baseBranchName,
-    })
+    const { stdout } = await execAsync(`gh pr create ${opts}`)
 
-    return {
-      url: pullRequest.html_url,
-    }
+    console.log(stdout)
   }
 }
