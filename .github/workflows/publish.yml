@@ -12,6 +12,11 @@ jobs:
     if: ${{ startsWith(github.head_ref, 'release-') && github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
       - id: publish
         uses: JS-DevTools/npm-publish@v2
         with:
