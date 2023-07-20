@@ -5,14 +5,10 @@ const execAsync = promisify(exec)
 
 export default class GithubProvider {
   config
-  tokenNames
-  octokit
   latestVersion
 
   constructor(config) {
     this.config = config
-    this.tokenNames = ['GIT_BRANCHEETOS_TOKEN', 'GH_TOKEN', 'GITHUB_TOKEN']
-    this.octokit = null
     this.latestVersion = null
   }
 
@@ -45,6 +41,16 @@ export default class GithubProvider {
     console.log()
   }
 
+  async execGhApi(cmd) {
+    try {
+      const { stdout } = await execAsync(`gh api ${cmd}`)
+
+      return JSON.parse(stdout)
+    } catch (err) {
+      return null
+    }
+  }
+
   async hasGhCli() {
     try {
       const { stdout } = await execAsync('gh version')
@@ -57,13 +63,10 @@ export default class GithubProvider {
 
   async isAuthenticated() {
     try {
-      const { stdout } = await execAsync('gh api /user')
-      const user = JSON.parse(stdout)
+      const user = await this.execGhApi('/user')
 
       return !!user?.id
     } catch (err) {
-      console.error(err)
-
       return false
     }
   }
@@ -72,10 +75,9 @@ export default class GithubProvider {
     const { gitRepo } = this.config
 
     try {
-      const { stdout } = await execAsync(
-        `gh api /repos/${gitRepo.owner}/${gitRepo.repo}/releases/latest`,
+      const latestRelease = await this.execGhApi(
+        `/repos/${gitRepo.owner}/${gitRepo.repo}/releases/latest`,
       )
-      const latestRelease = JSON.parse(stdout)
 
       return latestRelease.tag_name
     } catch (err) {
@@ -86,19 +88,26 @@ export default class GithubProvider {
   async createReleaseBranch({ headBranchName, releaseBranchName }) {
     const { gitRepo } = this.config
 
-    const { stdout } = await execAsync(
-      `gh api /repos/${gitRepo.owner}/${gitRepo.repo}/git/ref/heads/${headBranchName}`,
+    const releaseBranchRef = await this.execGhApi(
+      `/repos/${gitRepo.owner}/${gitRepo.repo}/git/ref/heads/${releaseBranchName}`,
     )
-    const ref = JSON.parse(stdout)
 
-    const opts = [
-      '--method POST',
-      `-f ref='refs/heads/${releaseBranchName}'`,
-      `-f sha=${ref.object.sha}`,
-    ].join(' ')
+    // Don't try and create the release branch if it already exists.
+    if (releaseBranchRef) {
+      return
+    }
 
-    await execAsync(
-      `gh api /repos/${gitRepo.owner}/${gitRepo.repo}/git/refs ${opts}`,
+    const ref = await this.execGhApi(
+      `/repos/${gitRepo.owner}/${gitRepo.repo}/git/ref/heads/${headBranchName}`,
+    )
+
+    await this.execGhApi(
+      [
+        `/repos/${gitRepo.owner}/${gitRepo.repo}/git/refs`,
+        '--method POST',
+        `-f ref='refs/heads/${releaseBranchName}'`,
+        `-f sha=${ref.object.sha}`,
+      ].join(' '),
     )
   }
 
@@ -108,12 +117,24 @@ export default class GithubProvider {
     headBranchName,
     baseBranchName,
   }) {
+    const { gitRepo } = this.config
+
+    const milestones = await this.execGhApi(
+      `/repos/${gitRepo.owner}/${gitRepo.repo}/milestones`,
+    )
+    const milestoneForVersion = milestones?.find((milestone) => {
+      return milestone.title === newVersionName
+    })
+
     const opts = [
-      `--title ${prName}`,
-      `--head ${headBranchName}`,
-      `--base ${baseBranchName}`,
-      `--milestone ${newVersionName}`,
-    ].join(' ')
+      `--title "${prName}"`,
+      `--head "${headBranchName}"`,
+      `--base "${baseBranchName}"`,
+      `--body ""`,
+      milestoneForVersion ? `--milestone "${newVersionName}"` : '',
+    ]
+      .filter((opt) => !!opt)
+      .join(' ')
 
     const { stdout } = await execAsync(`gh pr create ${opts}`)
 
