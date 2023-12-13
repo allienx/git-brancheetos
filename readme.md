@@ -1,6 +1,6 @@
 # git-brancheetos 🌶️🧀
 
-Automate your release pull requests. Enjoy your brancheetos.
+CLI tool to make your release pull requests consistent. Enjoy your brancheetos.
 
 Useful if your release pipeline follows this type of flow:
 

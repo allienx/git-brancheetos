@@ -1,7 +1,7 @@
 {
   "name": "git-brancheetos",
-  "version": "1.2.1",
-  "description": "Automate your release pull requests. Enjoy your brancheetos 🌶️🧀",
+  "version": "1.2.2",
+  "description": "CLI tool to make your release pull requests consistent. Enjoy your brancheetos 🌶️🧀",
   "keywords": [
     "git",
     "github",
@@ -16,6 +16,10 @@
   "main": "brancheetos.js",
   "bin": {
     "brancheetos": "./brancheetos.js"
+  },
+  "scripts": {
+    "format": "prettier --check .",
+    "format:fix": "prettier --write ."
   },
   "devDependencies": {
     "prettier": "2.8.8"
