@@ -1,6 +1,6 @@
 {
   "name": "git-brancheetos",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "CLI tool to make your release pull requests consistent. Enjoy your brancheetos 🌶️🧀",
   "keywords": [
     "git",
