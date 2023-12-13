@@ -35,27 +35,30 @@ export default async function getConfig({ forceReset = false } = {}) {
 
 async function getGitRepo() {
   const remoteOriginUrl = await gitRemoteOriginUrl()
-  const regex = /(.*)@(.*):(.*)\/(.*)\.(.*)/g
-  const matches = []
 
-  let m
+  const gitRegex =
+    /^(?:git(?:\+[^:]+)?:\/\/|https:\/\/|git@)github\.com[/:](.+?)\/(.+?)(?:\.git)?$/
+  const match = remoteOriginUrl.match(gitRegex)
 
-  while ((m = regex.exec(remoteOriginUrl)) !== null) {
-    // This is necessary to avoid infinite loops with zero-width matches
-    if (m.index === regex.lastIndex) {
-      regex.lastIndex++
-    }
-
-    m.forEach((match) => {
-      matches.push(match)
-    })
+  if (!match) {
+    console.error('Invalid Git remote origin URL:', remoteOriginUrl)
+    return null
   }
 
+  const [, owner, repo] = match
+  const protocol = remoteOriginUrl.startsWith('git@')
+    ? 'ssh'
+    : remoteOriginUrl.startsWith('git+ssh')
+    ? 'git+ssh'
+    : 'https'
+  const host = 'github.com'
+
   return {
-    origin: matches[0],
-    host: matches[2],
-    owner: matches[3],
-    repo: matches[4],
+    protocol,
+    origin: remoteOriginUrl,
+    host,
+    owner,
+    repo,
   }
 }
 

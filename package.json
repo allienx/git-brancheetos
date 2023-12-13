@@ -17,6 +17,10 @@
   "bin": {
     "brancheetos": "./brancheetos.js"
   },
+  "scripts": {
+    "format": "prettier --check .",
+    "format:fix": "prettier --write ."
+  },
   "devDependencies": {
     "prettier": "2.8.8"
   },
