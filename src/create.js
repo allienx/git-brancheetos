@@ -1,8 +1,8 @@
 import input from '@inquirer/input'
 import select from '@inquirer/select'
 import getConfig from './config/get-config.js'
-import getNewVersion from './config/get-new-version.js'
 import getPullRequestName from './config/get-pull-request-name.js'
+import getVersionOptions from './config/get-version-options.js'
 import { PullRequestType } from './config/pull-request-type.js'
 import GitProvider from './providers/git-provider.js'
 
@@ -25,22 +25,38 @@ export default async function create() {
         value: PullRequestType.StagingToProduction,
       },
       {
-        name: `hotfix => ${config.productionBranch}`,
-        value: PullRequestType.ProductionHotfix,
+        name: 'Create release branch',
+        value: PullRequestType.ReleaseBranch,
       },
     ],
   })
 
-  const defaultNewVersion = getNewVersion({
+  const versionOptions = getVersionOptions({
     config,
-    prType,
     latestVersion: gitProvider.latestVersion,
   })
-  const newVersionName = await input({
-    message: 'Enter the new version',
-    default: defaultNewVersion,
-    validate: (value) => !!value,
+  let newVersionName = await select({
+    message: 'Select the new version',
+    choices: [
+      ...versionOptions.map((option) => {
+        return {
+          name: option,
+          value: option,
+        }
+      }),
+      {
+        name: 'Other',
+        value: '__other__',
+      },
+    ],
   })
+
+  if (newVersionName === '__other__') {
+    newVersionName = await input({
+      message: 'Enter the new version',
+      validate: (value) => !!value,
+    })
+  }
 
   const defaultPrName = getPullRequestName({ prType, newVersionName })
   const prName = await input({
@@ -52,7 +68,7 @@ export default async function create() {
   const defaultReleaseBranchName = `release-${newVersionName}`
   const releaseBranchName =
     prType === PullRequestType.StagingToProduction ||
-    prType === PullRequestType.ProductionHotfix
+    prType === PullRequestType.ReleaseBranch
       ? await input({
           message: 'Enter the release branch name',
           default: defaultReleaseBranchName,
@@ -62,7 +78,7 @@ export default async function create() {
 
   if (
     prType === PullRequestType.StagingToProduction ||
-    prType === PullRequestType.ProductionHotfix
+    prType === PullRequestType.ReleaseBranch
   ) {
     console.log(`Creating release branch...`)
 
@@ -77,7 +93,7 @@ export default async function create() {
     console.log(`Created ${releaseBranchName} ✅`)
   }
 
-  if (prType !== PullRequestType.ProductionHotfix) {
+  if (prType !== PullRequestType.ReleaseBranch) {
     console.log(`Creating pull request...`)
 
     const headBranchName =

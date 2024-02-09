@@ -3,10 +3,10 @@ import { PullRequestType } from './pull-request-type.js'
 export default function getPullRequestName({ prType, newVersionName }) {
   switch (prType) {
     case PullRequestType.DevToStaging:
-      return `Code Freeze ${newVersionName} 🥶`
+      return `Release Candidate ${newVersionName} 📦`
 
     case PullRequestType.StagingToProduction:
-    case PullRequestType.ProductionHotfix:
+    case PullRequestType.ReleaseBranch:
       return `Release ${newVersionName} 🚀`
 
     default:
