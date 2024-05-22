@@ -42,7 +42,7 @@ function getYearMajorMinorOptions({ latestVersion }) {
   let [year, major, minor] = version.replace('v', '').split('.')
 
   if (!year || !major || !minor) {
-    return [`${prefix}${currentYear}.0.1`, `${prefix}${currentYear}.1.0`]
+    return [`${prefix}${currentYear}.1.1`]
   }
 
   year = Number(year)
@@ -50,11 +50,11 @@ function getYearMajorMinorOptions({ latestVersion }) {
   minor = Number(minor)
 
   if (currentYear !== year) {
-    return [`${prefix}${currentYear}.0.1`, `${prefix}${currentYear}.1.0`]
+    return [`${prefix}${currentYear}.1.1`]
   }
 
   return [
     `${prefix}${year}.${major}.${minor + 1}`,
-    `${prefix}${year}.${major + 1}.0`,
+    `${prefix}${year}.${major + 1}.1`,
   ]
 }
