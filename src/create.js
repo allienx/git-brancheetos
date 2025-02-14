@@ -35,21 +35,24 @@ export default async function create() {
     config,
     latestVersion: gitProvider.latestVersion,
   })
-  let newVersionName = await select({
-    message: 'Select the new version',
-    choices: [
-      ...versionOptions.map((option) => {
-        return {
-          name: option,
-          value: option,
-        }
-      }),
-      {
-        name: 'Other',
-        value: '__other__',
-      },
-    ],
-  })
+  let newVersionName =
+    prType !== PullRequestType.DevToStaging
+      ? await select({
+          message: 'Select the new version',
+          choices: [
+            ...versionOptions.map((option) => {
+              return {
+                name: option,
+                value: option,
+              }
+            }),
+            {
+              name: 'Other',
+              value: '__other__',
+            },
+          ],
+        })
+      : ''
 
   if (newVersionName === '__other__') {
     newVersionName = await input({

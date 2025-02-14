@@ -3,7 +3,7 @@ import { PullRequestType } from './pull-request-type.js'
 export default function getPullRequestName({ prType, newVersionName }) {
   switch (prType) {
     case PullRequestType.DevToStaging:
-      return `Release Candidate 📦`
+      return `Dev => Staging`
 
     case PullRequestType.StagingToProduction:
     case PullRequestType.ReleaseBranch:
