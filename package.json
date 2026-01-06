@@ -9,12 +9,16 @@
     "pull requests",
     "releases"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allienx/git-brancheetos.git"
+  },
   "homepage": "https://github.com/allienx/git-brancheetos",
   "license": "MIT",
   "type": "module",
   "main": "brancheetos.js",
   "bin": {
-    "brancheetos": "./brancheetos.js"
+    "brancheetos": "brancheetos.js"
   },
   "scripts": {
     "format": "prettier --check .",
