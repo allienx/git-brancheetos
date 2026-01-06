@@ -25,14 +25,14 @@ jobs:
       - run: npm publish --provenance --access public
 
       - name: Get release version
-        uses: xom9ikk/split@v1.1
+        uses: xom9ikk/split@v1
         id: split
         with:
           string: ${{ github.head_ref }}
           separator: 'release-'
 
       - name: Create tag and release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: ${{ steps.split.outputs._1 }}
           tag_name: ${{ steps.split.outputs._1 }}
