@@ -39,25 +39,24 @@ function getYearMajorMinorOptions({ latestVersion }) {
   const prefix = version.startsWith('v') ? 'v' : ''
   const currentYear = new Date().getFullYear()
 
-  let [year, major, minor, patch] = version.replace('v', '').split('.')
+  let [year, major, minor] = version.replace('v', '').split('.')
 
   if (!year || !major || !minor) {
-    return [`${prefix}${currentYear}.1.0`, `${prefix}${currentYear}.1.1`]
+    return [`${prefix}${currentYear}.1.0`]
   }
 
   year = Number(year)
   major = Number(major)
   minor = Number(minor)
-  patch = patch ? Number(patch) : 0
 
-  if (currentYear !== year) {
-    return [`${prefix}${currentYear}.1.0`, `${prefix}${currentYear}.1.1`]
-  }
-
-  return [
-    `${prefix}${year}.${major}.${minor}.${patch + 1}`,
+  const options = [
     `${prefix}${year}.${major}.${minor + 1}`,
     `${prefix}${year}.${major + 1}.0`,
-    `${prefix}${year}.${major + 1}.1`,
   ]
+
+  if (currentYear !== year) {
+    options.push(`${prefix}${currentYear}.1.0`)
+  }
+
+  return options
 }
