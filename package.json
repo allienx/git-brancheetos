@@ -20,6 +20,14 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write ."
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node"
+    },
+    "packageManager": {
+      "name": "npm"
+    }
+  },
   "devDependencies": {
     "prettier": "2.8.8"
   },

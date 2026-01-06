@@ -8,30 +8,30 @@ on:
       - closed
 
 jobs:
-  publish-tag-and-release:
+  publish:
     if: ${{ startsWith(github.head_ref, 'release-') && github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: '18'
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
 
-      - id: publish
-        uses: JS-DevTools/npm-publish@v2
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
+      - run: npm ci
+      - run: npm publish --provenance --access public
 
-      - if: ${{ steps.publish.outputs.type }}
-        name: Get release version
+      - name: Get release version
         uses: xom9ikk/split@v1.1
         id: split
         with:
           string: ${{ github.head_ref }}
           separator: 'release-'
 
-      - if: ${{ steps.publish.outputs.type }}
-        name: Create tag and release
+      - name: Create tag and release
         uses: softprops/action-gh-release@v1
         with:
           name: ${{ steps.split.outputs._1 }}
