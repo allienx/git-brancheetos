@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander'
-import round from 'lodash/round.js'
+import { round } from 'es-toolkit'
 import create from './src/create.js'
 import resetConfig from './src/reset-config.js'
 
@@ -29,7 +29,7 @@ async function main() {
 
   program
     .name('brancheetos')
-    .version('1.5.0')
+    .version('1.6.0')
     .description(
       'Automate your release pull requests. Enjoy your brancheetos 🌶️🧀',
     )

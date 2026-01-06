@@ -1,6 +1,6 @@
 {
   "name": "git-brancheetos",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "CLI tool to make your release pull requests consistent. Enjoy your brancheetos 🌶️🧀",
   "keywords": [
     "git",
@@ -11,7 +11,6 @@
   ],
   "homepage": "https://github.com/allienx/git-brancheetos",
   "license": "MIT",
-  "packageManager": "yarn@3.6.1",
   "type": "module",
   "main": "brancheetos.js",
   "bin": {
@@ -21,15 +20,22 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write ."
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node"
+    },
+    "packageManager": {
+      "name": "npm"
+    }
+  },
   "devDependencies": {
     "prettier": "2.8.8"
   },
   "dependencies": {
-    "@inquirer/input": "1.2.5",
-    "@inquirer/select": "1.2.5",
+    "@inquirer/prompts": "8.1.0",
     "commander": "11.0.0",
     "env-paths": "3.0.0",
-    "git-remote-origin-url": "4.0.0",
-    "lodash": "4.17.21"
+    "es-toolkit": "1.43.0",
+    "git-remote-origin-url": "4.0.0"
   }
 }
