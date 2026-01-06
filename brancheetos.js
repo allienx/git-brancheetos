@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander'
-import round from 'lodash/round.js'
+import { round } from 'es-toolkit'
 import create from './src/create.js'
 import resetConfig from './src/reset-config.js'
 
