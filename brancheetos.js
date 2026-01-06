@@ -29,7 +29,7 @@ async function main() {
 
   program
     .name('brancheetos')
-    .version('1.6.0')
+    .version('1.6.1')
     .description(
       'Automate your release pull requests. Enjoy your brancheetos 🌶️🧀',
     )
