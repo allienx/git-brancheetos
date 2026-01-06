@@ -1,5 +1,4 @@
-import input from '@inquirer/input'
-import select from '@inquirer/select'
+import { input, select } from '@inquirer/prompts'
 import envPaths from 'env-paths'
 import gitRemoteOriginUrl from 'git-remote-origin-url'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'

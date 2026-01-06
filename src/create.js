@@ -1,5 +1,4 @@
-import input from '@inquirer/input'
-import select from '@inquirer/select'
+import { input, select } from '@inquirer/prompts'
 import getConfig from './config/get-config.js'
 import getPullRequestName from './config/get-pull-request-name.js'
 import getVersionOptions from './config/get-version-options.js'
