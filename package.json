@@ -11,7 +11,6 @@
   ],
   "homepage": "https://github.com/allienx/git-brancheetos",
   "license": "MIT",
-  "packageManager": "yarn@3.6.1",
   "type": "module",
   "main": "brancheetos.js",
   "bin": {

@@ -5,6 +5,9 @@ export default function getVersionOptions({ config, latestVersion }) {
     case VersionType.SemVer:
       return getSemanticVersionOptions({ latestVersion })
 
+    case VersionType.YearMajor:
+      return getYearMajorOptions({ latestVersion })
+
     case VersionType.YearMajorMinor:
       return getYearMajorMinorOptions({ latestVersion })
 
@@ -32,6 +35,29 @@ function getSemanticVersionOptions({ latestVersion }) {
     `${prefix}${major}.${minor + 1}.0`,
     `${prefix}${major + 1}.0.0`,
   ]
+}
+
+function getYearMajorOptions({ latestVersion }) {
+  const version = latestVersion || ''
+  const prefix = version.startsWith('v') ? 'v' : ''
+  const currentYear = new Date().getFullYear()
+
+  let [year, major] = version.replace('v', '').split('.')
+
+  if (!year || !major) {
+    return [`${prefix}${currentYear}.1`]
+  }
+
+  year = Number(year)
+  major = Number(major)
+
+  const options = [`${prefix}${year}.${major + 1}`]
+
+  if (currentYear !== year) {
+    options.push(`${prefix}${currentYear}.1`)
+  }
+
+  return options
 }
 
 function getYearMajorMinorOptions({ latestVersion }) {
