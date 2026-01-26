@@ -104,6 +104,8 @@ async function writeConfig(config) {
 }
 
 async function promptForMissingConfig(config) {
+  const currentYear = new Date().getFullYear()
+
   const versioningType = await select({
     message: 'Select your versioning type',
     choices: [
@@ -113,9 +115,14 @@ async function promptForMissingConfig(config) {
         description: 'Example: v1.2.0 or v1.2.1',
       },
       {
+        name: `Year.Major (${VersionType.YearMajor})`,
+        value: VersionType.YearMajor,
+        description: `Example: v${currentYear}.1 or v${currentYear}.2`,
+      },
+      {
         name: `Year.Major.Minor (${VersionType.YearMajorMinor})`,
         value: VersionType.YearMajorMinor,
-        description: 'Example: v2023.15.0 or v2023.15.1',
+        description: `Example: v${currentYear}.1.0 or v${currentYear}.1.1`,
       },
       {
         name: 'Other',
