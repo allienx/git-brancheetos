@@ -1,4 +1,4 @@
-name: publish
+name: Publish
 
 on:
   pull_request:
@@ -31,10 +31,17 @@ jobs:
           string: ${{ github.head_ref }}
           separator: 'release-'
 
+      - name: Get changelog
+        uses: allienx/changelog-generator@main
+        id: changelog
+        with:
+          github-token: ${{ github.token }}
+          release-tag: ${{ steps.split.outputs._1 }}
+
       - name: Create tag and release
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ steps.split.outputs._1 }}
           tag_name: ${{ steps.split.outputs._1 }}
           target_commitish: main
-          generate_release_notes: true
+          body: ${{ steps.changelog.outputs.summary }}
